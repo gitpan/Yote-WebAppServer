@@ -1,0 +1,15 @@
+MANIFEST
+README
+LICENSE
+Todo
+Changes
+Makefile.PL
+lib/Yote/AppRoot.pm
+lib/Yote/Array.pm
+lib/Yote/Hash.pm
+lib/Yote/MysqlIO.pm
+lib/Yote/Obj.pm
+lib/Yote/ObjProvider.pm
+lib/Yote/SQLiteIO.pm
+lib/Yote/WebAppServer.pm
+t/GS.t
