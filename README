@@ -12,7 +12,7 @@ To set up the Yote Web App Server, you will need to
 * put the Yote::WebAppServer module in your path
 * modify the start_server.pl file
 * get a web server that can run cgi files.
-* get yote.cgi from http://fenowyn.com/yote/dl/yote.html
+* get yote.cgi from http://fenowyn.com/yote/dl/yote.txt
 * yote.cgi into your cgi-bin directory
 * get js files from http://fenowyn.com/yote/js/yote.js (also in that dir : jquery-latest.js, json2.js, jquery.base64.min.js )
 * to put scripts/yote.js into a javascript directory on your webserver
@@ -27,8 +27,13 @@ Using Yote -----------------------------------------------------------------
 
 (see http://fenowyn.com/yote)
 
+Starting the Web App Server with default port 8008 using SQLiteIO (writing to file ~/.yote/SQLite.yote.db) :
+       just launch 
+          >yote_server
 
-Starting the Web App Server
+
+
+Starting the Web App Server via libraries
        use Yote::WebAppServer;
 
        my $server = new Yote::WebAppServer();
@@ -36,6 +41,7 @@ Starting the Web App Server
        $server->start_server( port => 8008,
                               datastore  => 'Yote::SQLiteIO',
                               sqlitefile => 'yote.database' );
+
 
 
 # -----------------------------
