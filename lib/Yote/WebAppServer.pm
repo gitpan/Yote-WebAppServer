@@ -20,7 +20,7 @@ use Yote::AppRoot;
 use base qw(Net::Server::Fork);
 use vars qw($VERSION);
 
-$VERSION = '0.01';
+$VERSION = '0.05';
 
 
 my( @commands, %prid2wait, %prid2result, $singleton );
@@ -44,11 +44,21 @@ sub start_server {
     # fork out for two starting threads
     #   - one a multi forking server and the other an event loop.
     my $thread = threads->new( sub { $self->run( %$args ); } );
+    $self->{thread} = $thread;
 
     _poll_commands();
 
     $thread->join;
 } #start_server
+
+sub shutdown {
+    my $self = shift;
+    print STDERR "Shutting down yote server \n";
+    &Yote::ObjProvider::stow_all();
+    print STDERR "Killing threads \n";
+    $self->{thread}->detach();
+    print STDERR "Shut down server thread.\n";
+} #shutdown
 
 #
 # Sets up Initial database server and tables.
@@ -142,8 +152,10 @@ sub _poll_commands {
     while(1) {
         my $cmd;
         {
+	    print STDERR "Extracting Command\n";
             lock( @commands );
             $cmd = shift @commands;
+	    print STDERR "Got Command\n";
         }
         if( $cmd ) {
 	    print STDERR Data::Dumper->Dump([" in poll, Processing",$cmd]);
@@ -151,8 +163,11 @@ sub _poll_commands {
 	    print STDERR Data::Dumper->Dump([" in poll, Done processing",$cmd]);
         }
         unless( @commands ) {
+	    print STDERR "Locking commands\n";
             lock( @commands );
+	    print STDERR "Waiting for commands\n";
             cond_wait( @commands );
+	    print STDERR "Got Command\n";
         }
     }
 
@@ -162,7 +177,7 @@ sub _process_command {
     my $req = shift;
     my( $command, $procid ) = @$req;
 
-    _reconnect();
+    Yote::ObjProvider::connect();
 
     my $resp;
 
@@ -188,13 +203,11 @@ sub _process_command {
     delete $prid2wait{$procid};
     cond_broadcast( %prid2wait );
 
+    Yote::ObjProvider::commit();
+    Yote::ObjProvider::disconnect();
 } #_process_command
 
-sub _reconnect {
-    Yote::ObjIO::reconnect();
-} #_reconnect
-
-1
+1;
 
 __END__
 
